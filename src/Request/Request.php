@@ -168,6 +168,20 @@ class Request
     }
 
     /**
+     * Простановка Authorization заголовка для OAuth2 авторизации
+     *
+     * @param array $headers
+     * @return array
+     */
+    protected function setAuthorizationHeader($headers)
+    {
+        if (!is_null($this->parameters->getAuth('access_token'))) {
+            $headers[] = 'Authorization: Bearer ' . $this->parameters->getAuth('access_token');
+        }
+        return $headers;
+    }
+
+    /**
      * Подготавливает URL для HTTP запроса
      *
      * @param string $url Запрашиваемый URL
@@ -202,6 +216,7 @@ class Request
     protected function request($url, $modified = null)
     {
         $headers = $this->prepareHeaders($modified);
+        $headers = $this->setAuthorizationHeader($headers);
         $endpoint = $this->prepareEndpoint($url);
 
         $this->printDebug('url', $endpoint);
