@@ -35,6 +35,7 @@ use AmoCRM\Helpers\Format;
  * @property \AmoCRM\Models\Unsorted $unsorted
  * @property \AmoCRM\Models\Webhooks $webhooks
  * @property \AmoCRM\Models\Widgets $widgets
+ * @property \AmoCRM\Events\PhoneCall $phone_call
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -94,12 +95,15 @@ class Client
      */
     public function __get($name)
     {
-        $classname = '\\AmoCRM\\Models\\' . Format::camelCase($name);
+        $camelCasedName = Format::camelCase($name);
+        $classNameAsModel = '\\AmoCRM\\Models\\' . $camelCasedName;
+        $classNameAsEvent = '\\AmoCRM\\Events\\' . $camelCasedName;
 
-        if (!class_exists($classname)) {
-            throw new ModelException('Model not exists: ' . $name);
+        if (!class_exists($classNameAsModel) && !class_exists($classNameAsEvent)) {
+            throw new ModelException('Entity not exists: ' . $name);
         }
 
+        $classname = class_exists($classNameAsModel) ? $classNameAsModel : $classNameAsEvent;
         // Чистим GET и POST от предыдущих вызовов
         $this->parameters->clearGet()->clearPost();
 

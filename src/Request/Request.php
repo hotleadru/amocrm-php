@@ -27,6 +27,11 @@ class Request
     protected $v1 = false;
 
     /**
+     * @var bool версия Api (Под старым api имеется в виду /private/api/v2/json)
+     */
+    protected $oldApi = true;
+
+    /**
      * @var bool Флаг вывода отладочной информации
      */
     private $debug = false;
@@ -232,9 +237,9 @@ class Request
         curl_setopt($ch, CURLOPT_ENCODING, '');
 
         if ($this->parameters->hasPost()) {
-            $fields = json_encode([
-                'request' => $this->parameters->getPost(),
-            ]);
+            $fields = $this->oldApi
+                ? json_encode(['request' => $this->parameters->getPost()])
+                : json_encode($this->parameters->getPost());
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $fields);
             $this->printDebug('post params', $fields);
